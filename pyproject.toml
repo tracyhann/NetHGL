@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tms-gnn"
+version = "0.1.0"
+description = "Hierarchical graph neural network and analysis utilities for longitudinal connectome classification"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+authors = [{name = "[AUTHOR NAME]"}]
+dependencies = [
+  "numpy>=1.23",
+  "pandas>=1.5",
+  "scipy>=1.9",
+  "scikit-learn>=1.2",
+  "torch>=2.0",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+gnn = ["torch-geometric>=2.4"]
+analysis = ["statsmodels>=0.14"]
+all = ["torch-geometric>=2.4", "statsmodels>=0.14"]
+dev = ["pytest>=7.4", "ruff>=0.6"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]

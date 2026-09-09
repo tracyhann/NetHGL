@@ -1,0 +1,49 @@
+project:
+  model_name: "[MODELNAME]"
+  run_name: "<RUN_NAME>"
+
+paths:
+  data_root: "<DATA_ROOT>"
+  output_root: "<OUTPUT_ROOT>"
+  atlas_labels: "<ATLAS_LABELS>"
+  community_map: "<COMMUNITY_MAP>"
+
+graph:
+  lags: [1, 2, 3, 4, 5, 10, 20, 30]
+  ar_order: 16
+  min_overlap: 30
+  within_network_only: true
+  edge_sign: "all"
+  include_self: true
+
+model:
+  input_dim: 64
+  hidden_dim: 256
+  output_dim: 1
+  num_rois: 450
+  num_networks: 24
+  roi_layers: 2
+  network_layers: 2
+  heads: 1
+  dropout: 0.2
+
+training:
+  batch_size: 16
+  learning_rate: 0.001
+  weight_decay: 0.005
+  max_epochs: 200
+  patience: 15
+  random_seed: "<RANDOM_SEED>"
+  test_fraction: 0.15
+  validation_fraction: 0.15
+  threshold_objective: "balanced_accuracy"
+
+analysis:
+  participant_column: "participant_id"
+  visit_column: "visit"
+  outcome_column: "remission"
+  treatment_column: "treatment"
+  time_column: "days"
+  bootstrap_iterations: 5000
+  permutation_iterations: 10000
+
