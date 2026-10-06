@@ -42,7 +42,7 @@ For layer $`\ell`$, mean-aggregating GraphSAGE has the conceptual form
 
 ```math
 h_i^{(\ell+1)}=\phi\!\left(W_{\mathrm{self}}h_i^{(\ell)}+
-W_{\mathrm{neigh}}\operatorname{mean}_{j\in\mathcal N(i)}h_j^{(\ell)}\right).
+W_{\mathrm{neigh}}\mathrm{mean}_{j\in\mathcal N(i)}h_j^{(\ell)}\right).
 ```
 
 Two layers map 64→256→64 dimensions with GELU and no dropout.
@@ -64,9 +64,9 @@ Thus, weights sum to one across the ROIs in each network. The ROI order and comm
 The network graph contains every ordered pair $`(n,m)`$, including self-edges. Two GATv2 layers map 64→256→64 dimensions. A simplified single-head attention update is
 
 ```math
-e_{nm}=a^\top\operatorname{LeakyReLU}(W_s z_n+W_t z_m),
+e_{nm}=a^\top\mathrm{LeakyReLU}(W_s z_n+W_t z_m),
 \qquad
-\alpha_{nm}=\operatorname{softmax}_{n\in\mathcal N(m)}(e_{nm}),
+\alpha_{nm}=\mathrm{softmax}_{n\in\mathcal N(m)}(e_{nm}),
 ```
 
 followed by an attention-weighted source aggregation at destination $`m`$. The implementation delegates the exact operator to PyTorch Geometric `GATv2Conv` with `concat=False` and no additional self-loop insertion because self-edges are already explicit. Neither attention dropout nor post-layer dropout is applied.
@@ -78,7 +78,7 @@ Each final network token produces a scalar depression contribution $`q_n=w^\top 
 ```math
 \eta=\beta_0+\sum_n\beta_n q_n,
 \qquad
-P(Y_{\mathrm{depression}}=1)=\operatorname{sigmoid}(\eta).
+P(Y_{\mathrm{depression}}=1)=\mathrm{sigmoid}(\eta).
 ```
 
 Training uses binary cross-entropy with logits and AdamW (learning rate 0.001, weight decay 0.005), batch size 16, and at most 50 epochs. After each epoch the decision threshold is chosen on the validation partition to maximize the smaller of the two class recalls; the checkpoint with the highest such validation minimum class recall (ties broken by lower validation loss) is kept with its threshold, and training stops early after 15 epochs without improvement. The test partition remains untouched until final evaluation. Participants are split 29/6/7 into training, validation, and test sets.
@@ -139,7 +139,7 @@ Participant-cluster bootstrap intervals first average repeated graphs within par
 For participant $`i`$ and graph/visit $`v`$, a generic network-balance model is
 
 ```math
-\operatorname{logit}P(R_{iv}=1)=\beta_0+\beta_1 Z(B_{iv})+
+\mathrm{logit}\,P(R_{iv}=1)=\beta_0+\beta_1 Z(B_{iv})+
 \beta_2 t_{iv}+\beta_3 Z(\mathrm{age}_i)+\beta_4\mathrm{sex}_i.
 ```
 
@@ -150,7 +150,7 @@ For participant $`i`$ and graph/visit $`v`$, a generic network-balance model is
 The moderation model is
 
 ```math
-\operatorname{logit}P(R_{iv}=1)=\beta_0+\beta_1 Z(B_{iv})+
+\mathrm{logit}\,P(R_{iv}=1)=\beta_0+\beta_1 Z(B_{iv})+
 \beta_2 T_i+\beta_3 Z(B_{iv})T_i+\gamma^\top C_{iv}.
 ```
 
