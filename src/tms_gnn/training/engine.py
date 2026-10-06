@@ -13,16 +13,22 @@ import torch
 from torch import nn
 
 from tms_gnn.config import TrainingConfig
+from tms_gnn.training.metrics import select_threshold
 
 
 @dataclass
 class FitResult:
-    """Fitted model, best weights, and epoch-level loss history."""
+    """Fitted model, best weights, epoch-level history, and validation threshold.
+
+    ``threshold`` is the validation-selected decision threshold of the best
+    checkpoint when ``selection_metric="min_class_recall"``, else ``None``.
+    """
 
     model: nn.Module
     best_state: dict[str, torch.Tensor]
     best_epoch: int
     history: list[dict[str, float]]
+    threshold: float | None = None
 
 
 def set_reproducible_seed(seed: int, deterministic: bool = True) -> None:
@@ -136,7 +142,13 @@ def fit(
     device: str | torch.device = "cpu",
     positive_class_weight: float | None = None,
 ) -> FitResult:
-    """Fit with AdamW and early stopping on validation BCE loss."""
+    """Fit with AdamW, selecting the checkpoint and stopping early on validation.
+
+    The selection metric is ``config.selection_metric``: the validation minimum
+    class recall at its best threshold (ties broken by lower validation loss), or
+    the validation BCE loss. Training stops after ``config.patience`` epochs
+    without improvement or after ``config.max_epochs`` epochs.
+    """
 
     training_config = config or TrainingConfig()
     target_device = torch.device(device)
@@ -155,24 +167,35 @@ def fit(
         weight_decay=training_config.weight_decay,
     )
 
-    best_loss = float("inf")
+    use_recall = training_config.selection_metric == "min_class_recall"
+    best_score: tuple[float, float] = (-float("inf"), -float("inf"))
     best_epoch = -1
+    best_threshold: float | None = None
     best_state: dict[str, torch.Tensor] = {}
     history: list[dict[str, float]] = []
     epochs_without_improvement = 0
     for epoch in range(training_config.max_epochs):
         train_loss = train_epoch(model, train_loader, optimizer, criterion, target_device)
         validation_loss = _validation_loss(model, validation_loader, criterion, target_device)
-        history.append(
-            {
-                "epoch": float(epoch),
-                "train_loss": float(train_loss),
-                "validation_loss": float(validation_loss),
-            }
-        )
-        if validation_loss < best_loss:
-            best_loss = validation_loss
+        row = {
+            "epoch": float(epoch),
+            "train_loss": float(train_loss),
+            "validation_loss": float(validation_loss),
+        }
+        threshold = None
+        if use_recall:
+            threshold, min_recall = _validation_min_class_recall(
+                model, validation_loader, target_device
+            )
+            row["validation_min_class_recall"] = min_recall
+            score = (min_recall, -validation_loss)
+        else:
+            score = (-validation_loss, 0.0)
+        history.append(row)
+        if score > best_score:
+            best_score = score
             best_epoch = epoch
+            best_threshold = threshold
             best_state = {
                 name: value.detach().cpu().clone() for name, value in model.state_dict().items()
             }
@@ -185,4 +208,29 @@ def fit(
     if not best_state:
         raise RuntimeError("training did not produce a finite validation checkpoint")
     model.load_state_dict(copy.deepcopy(best_state))
-    return FitResult(model=model, best_state=best_state, best_epoch=best_epoch, history=history)
+    return FitResult(
+        model=model,
+        best_state=best_state,
+        best_epoch=best_epoch,
+        history=history,
+        threshold=best_threshold,
+    )
+
+
+def _validation_min_class_recall(
+    model: nn.Module,
+    loader: Iterable,
+    device: torch.device,
+) -> tuple[float, float]:
+    """Return the validation threshold maximizing the smaller class recall, and that recall."""
+
+    prediction = predict(model, loader, device=device)
+    if len(np.unique(prediction["labels"])) != 2:
+        raise ValueError(
+            "selection_metric='min_class_recall' needs both classes in the validation set; "
+            "use selection_metric='validation_loss' otherwise"
+        )
+    threshold, metrics = select_threshold(
+        prediction["labels"], prediction["probabilities"], objective="min_class_recall"
+    )
+    return threshold, float(min(metrics["specificity"], metrics["recall"]))

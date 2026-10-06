@@ -75,9 +75,13 @@ def binary_classification_metrics(
 def select_threshold(
     y_true: ArrayLike,
     probabilities: ArrayLike,
-    objective: str = "balanced_accuracy",
+    objective: str = "min_class_recall",
 ) -> tuple[float, dict[str, Any]]:
-    """Choose a decision threshold using validation labels only."""
+    """Choose a decision threshold using validation labels only.
+
+    The default objective maximizes the smaller of the two class recalls
+    (specificity and sensitivity), as in the primary experiments.
+    """
 
     labels, scores = _validated_binary_arrays(y_true, probabilities)
     if len(np.unique(labels)) != 2:

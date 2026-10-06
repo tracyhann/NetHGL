@@ -119,7 +119,7 @@ These quantities characterize the trained model's prediction mechanism. They are
 
 `participant_level_split` performs seeded random splitting on unique participants and then maps every repeated graph back to the same partition. It does not balance age or sex by default. An optional participant-level stratification variable can be supplied when the cohort supports it.
 
-The training helper uses AdamW, binary cross-entropy with logits, optional positive-class weighting, and validation-loss early stopping. Select a classification threshold on validation data only; then apply that fixed threshold to the test set. Reported metrics include accuracy, balanced accuracy, ROC AUC, specificity, recall, precision, F1, and a two-class confusion matrix.
+The training helper uses AdamW (learning rate 0.001, weight decay 0.005), batch size 16, binary cross-entropy with logits, optional positive-class weighting, no dropout, at most 50 epochs, and early stopping with patience 15. By default the checkpoint and its decision threshold maximize the validation minimum class recall (`selection_metric="min_class_recall"`); `selection_metric="validation_loss"` selects on validation loss instead. Apply the returned validation threshold, unchanged, to the test set. Reported metrics include accuracy, balanced accuracy, ROC AUC, specificity, recall, precision, F1, and a two-class confusion matrix.
 
 No research split or seed list is included. Supply and document release-appropriate seeds in your own run configuration.
 

@@ -25,18 +25,19 @@ model:
   roi_layers: 2
   network_layers: 2
   heads: 1
-  dropout: 0.2
+  dropout: 0.0
 
 training:
   batch_size: 16
   learning_rate: 0.001
   weight_decay: 0.005
-  max_epochs: 200
+  max_epochs: 50
   patience: 15
+  selection_metric: "min_class_recall"
   random_seed: "<RANDOM_SEED>"
   test_fraction: 0.15
-  validation_fraction: 0.15
-  threshold_objective: "balanced_accuracy"
+  validation_fraction: 0.14
+  threshold_objective: "min_class_recall"
 
 analysis:
   participant_column: "participant_id"
@@ -44,6 +45,6 @@ analysis:
   outcome_column: "remission"
   treatment_column: "treatment"
   time_column: "days"
-  bootstrap_iterations: 5000
+  bootstrap_iterations: 10000
   permutation_iterations: 10000
 

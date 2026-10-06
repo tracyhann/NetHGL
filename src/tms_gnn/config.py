@@ -48,7 +48,9 @@ class ModelConfig:
     roi_layers: int = 2
     network_layers: int = 2
     heads: int = 1
-    dropout: float = 0.2
+    # The reported model uses no dropout: neither after the GraphSAGE and GATv2
+    # layers nor on the GATv2 attention coefficients.
+    dropout: float = 0.0
 
     def __post_init__(self) -> None:
         integer_fields = {
@@ -70,15 +72,26 @@ class ModelConfig:
             raise ValueError("dropout must be in [0, 1)")
 
 
+SELECTION_METRICS = ("min_class_recall", "validation_loss")
+
+
 @dataclass(frozen=True)
 class TrainingConfig:
-    """Optimization defaults used in the primary experiments."""
+    """Optimization defaults used in the primary experiments.
+
+    AdamW with learning rate 0.001 and weight decay 0.005, batch size 16, at most
+    50 epochs, and early stopping after ``patience`` epochs without improvement in
+    the validation selection metric. With ``selection_metric="min_class_recall"``
+    the checkpoint (and its decision threshold) maximizes the smaller of the two
+    validation class recalls, ties broken by lower validation loss.
+    """
 
     batch_size: int = 16
     learning_rate: float = 1e-3
     weight_decay: float = 5e-3
-    max_epochs: int = 200
+    max_epochs: int = 50
     patience: int = 15
+    selection_metric: str = "min_class_recall"
 
     def __post_init__(self) -> None:
         if self.batch_size <= 0:
@@ -91,3 +104,5 @@ class TrainingConfig:
             raise ValueError("max_epochs must be positive")
         if self.patience <= 0:
             raise ValueError("patience must be positive")
+        if self.selection_metric not in SELECTION_METRICS:
+            raise ValueError(f"selection_metric must be one of {SELECTION_METRICS}")

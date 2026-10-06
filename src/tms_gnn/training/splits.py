@@ -35,15 +35,17 @@ def participant_level_split(
     participant_ids: ArrayLike,
     *,
     test_size: float = 0.15,
-    validation_size: float = 0.15,
+    validation_size: float = 0.14,
     random_state: int = 0,
     stratify: ArrayLike | None = None,
 ) -> ParticipantSplit:
     """Split graph rows without placing one participant in multiple sets.
 
     ``test_size`` and ``validation_size`` are fractions of all unique
-    participants. ``stratify`` is optional participant-level information
-    repeated on graph rows; it is not assumed to be the graph outcome.
+    participants. The defaults give 29 training, 6 validation, and 7 test
+    participants for the 42-participant study cohort. ``stratify`` is optional
+    participant-level information repeated on graph rows; it is not assumed to
+    be the graph outcome.
     """
 
     participants = np.asarray(participant_ids)

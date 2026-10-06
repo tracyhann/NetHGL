@@ -96,7 +96,7 @@ def cluster_bootstrap_mean(
     values: ArrayLike,
     participant_ids: ArrayLike,
     *,
-    n_bootstrap: int = 5000,
+    n_bootstrap: int = 10000,
     confidence: float = 0.95,
     random_state: int = 0,
 ) -> ConfidenceInterval:

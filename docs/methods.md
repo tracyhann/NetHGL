@@ -45,7 +45,7 @@ h_i^{(\ell+1)}=\phi\!\left(W_{\mathrm{self}}h_i^{(\ell)}+
 W_{\mathrm{neigh}}\operatorname{mean}_{j\in\mathcal N(i)}h_j^{(\ell)}\right).
 \]
 
-Two layers map 64→256→64 dimensions with GELU and dropout.
+Two layers map 64→256→64 dimensions with GELU and no dropout.
 
 ## 4. Learned ROI-to-network pooling
 
@@ -69,7 +69,7 @@ e_{nm}=a^\top\operatorname{LeakyReLU}(W_s z_n+W_t z_m),
 \alpha_{nm}=\operatorname{softmax}_{n\in\mathcal N(m)}(e_{nm}),
 \]
 
-followed by an attention-weighted source aggregation at destination \(m\). The implementation delegates the exact operator to PyTorch Geometric `GATv2Conv` with `concat=False` and no additional self-loop insertion because self-edges are already explicit.
+followed by an attention-weighted source aggregation at destination \(m\). The implementation delegates the exact operator to PyTorch Geometric `GATv2Conv` with `concat=False` and no additional self-loop insertion because self-edges are already explicit. Neither attention dropout nor post-layer dropout is applied.
 
 ## 6. Graph readout
 
@@ -81,7 +81,7 @@ Each final network token produces a scalar depression contribution \(q_n=w^\top 
 P(Y_{\mathrm{depression}}=1)=\operatorname{sigmoid}(\eta).
 \]
 
-Training uses binary cross-entropy with logits. The validation partition determines early stopping and any decision threshold; the test partition remains untouched until final evaluation.
+Training uses binary cross-entropy with logits and AdamW (learning rate 0.001, weight decay 0.005), batch size 16, and at most 50 epochs. After each epoch the decision threshold is chosen on the validation partition to maximize the smaller of the two class recalls; the checkpoint with the highest such validation minimum class recall (ties broken by lower validation loss) is kept with its threshold, and training stops early after 15 epochs without improvement. The test partition remains untouched until final evaluation. Participants are split 29/6/7 into training, validation, and test sets.
 
 ## 7. Gradient×attention attribution
 
