@@ -68,7 +68,7 @@ test = predict(result.model, loader(split.test_indices))
 metrics = binary_classification_metrics(test["labels"], test["probabilities"], result.threshold)
 ```
 
-Splits are made by participant, so all scans and visits of a participant stay in one partition. The defaults reproduce the configuration reported in the paper:
+Splits are made by participant, so all scans and visits of a participant stay in one partition.
 
 | Component | Default |
 |---|---|
@@ -81,7 +81,6 @@ Splits are made by participant, so all scans and visits of a participant stay in
 | Optimization | AdamW, learning rate 0.001, weight decay 0.005, batch size 16, no dropout |
 | Stopping | At most 50 epochs, early stopping after 15 epochs without improvement |
 | Selection | Checkpoint and decision threshold maximize the validation minimum class recall |
-| Split | 29 / 6 / 7 participants (training / validation / test) for a 42-participant cohort |
 
 # Interpretation and Analysis
 
