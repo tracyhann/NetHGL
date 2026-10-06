@@ -35,3 +35,11 @@ runs/
 *.tar
 *.tar.gz
 
+
+# Kept out of the release: governance notes, tests, and maintenance scripts
+SECURITY.md
+tests/
+scripts/
+
+# Figures shown in the README
+!docs/figures/*.png

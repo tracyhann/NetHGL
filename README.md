@@ -1,33 +1,16 @@
 # [MODELNAME]
 
-[MODELNAME] is a hierarchical graph neural network for binary classification of longitudinal functional-connectivity graphs. It first learns representations within atlas networks at ROI resolution, pools ROIs into network tokens, and then models directed communication among the network tokens. The repository also contains the graph-construction, attribution, perturbation, repeated-measures statistical, and evaluation functions used to study the trained model.
+[MODELNAME] is a hierarchical graph neural network that classifies fMRI scans as concurrent remission or depression from ROI graphs. It first learns representations within atlas functional networks at ROI resolution, pools ROIs into network tokens with learned weights, and then models directed communication among the network tokens. The repository also contains the graph-construction, attribution, perturbation, repeated-measures statistical, and evaluation functions used to study the trained model.
 
 This is a code-only release. It contains no participant records, imaging data, derived connectivity, graph files, split manifests, checkpoints, predictions, or study results.
 
 ## Method at a glance
 
-```text
-Parcellated ROI time series
-        │
-        ├── pairwise Pearson FC
-        └── 64 temporal features per ROI
-                    │
-          within-network directed ROI graph
-                    │
-              2-layer GraphSAGE
-                    │
-          learned ROI-to-network pooling
-                    │
-        complete directed network graph
-                    │
-               2-layer GATv2
-                    │
-       network-wise contributions + readout
-                    │
-              depression logit
-```
+![[MODELNAME] pipeline](docs/figures/model_pipeline.png)
 
-The study configuration used 450 ROIs assigned to 24 networks. The code is dimension-agnostic and the synthetic example deliberately uses a much smaller graph.
+**A. Graph construction.** Each resting-state fMRI scan (participant $`u`$, visit $`v`$, scan $`m`$) is preprocessed and parcellated into 450 ROIs (400 Schaefer cortical and 50 Tian subcortical) assigned to 24 functional networks. Each ROI's time series is summarized by 32 temporal features under a within-ROI and a whole-brain normalization (64 features per node), and ROIs are connected only within their own network. The scan takes the concurrent MADRS label of its visit: remitted (MADRS ≤ 10) or depressed (MADRS > 10).
+
+**B. Network-aware hierarchical graph learning.** Two GraphSAGE layers (64→256→64) pass messages within networks; learned, scan-invariant weights pool the ROI embeddings into one embedding per network; two GATv2 layers (64→256→64) pass messages over the complete directed network graph; and a network-weighted linear ensemble produces the depression logit. Gradient-weighted attention on the final network edges supports the downstream interpretation.
 
 ## Repository contents
 
@@ -37,7 +20,7 @@ The study configuration used 450 ROIs assigned to 24 networks. The code is dimen
 - `src/tms_gnn/interpretability`: gradient×attention attribution, network/dyadic balance, and removal/retain-only perturbations.
 - `src/tms_gnn/analysis`: clustered logistic regression, treatment moderation, random-intercept mixed models, and multiplicity correction.
 - `examples/synthetic_workflow.py`: an end-to-end run using generated arrays only.
-- `scripts/audit_release.py`: a release privacy and artifact audit.
+- `docs/`: method equations, the input data schema, and the pipeline figure.
 
 See [Methods](docs/methods.md) for equations and [Data schema](docs/data_schema.md) for the caller-supplied input contract.
 
@@ -49,11 +32,10 @@ Create a clean Python 3.10 or newer environment, then install the full package:
 python -m pip install -e ".[all]"
 ```
 
-For development:
+For development (linting):
 
 ```bash
 python -m pip install -e ".[all,dev]"
-pytest -q
 ruff check .
 ```
 
@@ -117,7 +99,7 @@ These quantities characterize the trained model's prediction mechanism. They are
 
 ## Training and evaluation
 
-`participant_level_split` performs seeded random splitting on unique participants and then maps every repeated graph back to the same partition. It does not balance age or sex by default. An optional participant-level stratification variable can be supplied when the cohort supports it.
+`participant_level_split` performs seeded random splitting on unique participants and then maps every repeated graph back to the same partition. The default fractions give 29 training, 6 validation, and 7 test participants for a 42-participant cohort. It does not balance age or sex by default. An optional participant-level stratification variable can be supplied when the cohort supports it.
 
 The training helper uses AdamW (learning rate 0.001, weight decay 0.005), batch size 16, binary cross-entropy with logits, optional positive-class weighting, no dropout, at most 50 epochs, and early stopping with patience 15. By default the checkpoint and its decision threshold maximize the validation minimum class recall (`selection_metric="min_class_recall"`); `selection_metric="validation_loss"` selects on validation loss instead. Apply the returned validation threshold, unchanged, to the test set. Reported metrics include accuracy, balanced accuracy, ROC AUC, specificity, recall, precision, F1, and a two-class confusion matrix.
 
@@ -147,16 +129,6 @@ Target masks should be compared with size- and topology-matched network controls
 ## Configuration
 
 Copy `configs/example.yaml` and replace only the angle-bracket placeholders. Keep private paths and identifiers outside version control. The Python APIs do not require this YAML file; it is a documented run-config template for downstream scripts.
-
-## Release audit
-
-Before publishing, run:
-
-```bash
-python scripts/audit_release.py .
-```
-
-The audit rejects common absolute user paths, participant-like tags, assigned secrets, symlinks, oversized files, and typical data/checkpoint/output formats. It complements—not replaces—manual governance review.
 
 ## Reproducibility and scope
 

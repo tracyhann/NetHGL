@@ -23,14 +23,10 @@ dependencies = [
 gnn = ["torch-geometric>=2.4"]
 analysis = ["statsmodels>=0.14"]
 all = ["torch-geometric>=2.4", "statsmodels>=0.14"]
-dev = ["pytest>=7.4", "ruff>=0.6"]
+dev = ["ruff>=0.6"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.pytest.ini_options]
-addopts = "--strict-markers"
-testpaths = ["tests"]
 
 [tool.ruff]
 line-length = 100
