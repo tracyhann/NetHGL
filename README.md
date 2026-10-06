@@ -130,16 +130,6 @@ Target masks should be compared with size- and topology-matched network controls
 
 Copy `configs/example.yaml` and replace only the angle-bracket placeholders. Keep private paths and identifiers outside version control. The Python APIs do not require this YAML file; it is a documented run-config template for downstream scripts.
 
-## Reproducibility and scope
-
-- Split at participant level before constructing loaders.
-- Fit preprocessing and threshold choices without test-set information.
-- Record software versions, random seeds, atlas provenance, community order, visit filter, and outcome coding.
-- Verify that every graph uses the same ordered ROI-to-network mapping expected by the model.
-- Treat exploratory screens and corrected confirmatory tests distinctly.
-
-The repository provides method code, not a trained medical device. It must not be used for clinical decisions without independent validation, governance, and regulatory review.
-
 ## Citation
 
 Replace this block with the final publication citation before archival release:
