@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "tms-gnn"
+name = "nethgl"
 version = "0.1.0"
-description = "Hierarchical graph neural network and analysis utilities for longitudinal connectome classification"
+description = "NetHGL: hierarchical graph learning over functional brain networks, with attribution and analysis utilities"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {file = "LICENSE"}

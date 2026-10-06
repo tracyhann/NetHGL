@@ -19,10 +19,10 @@ def main() -> None:
         message = "Install the full release dependencies with: pip install -e '.[all]'"
         raise SystemExit(message) from error
 
-    from tms_gnn.config import GraphConfig, ModelConfig
-    from tms_gnn.graph import build_graph
-    from tms_gnn.interpretability import gradient_times_attention, network_balance
-    from tms_gnn.models import HierarchicalBrainGNN
+    from nethgl.config import GraphConfig, ModelConfig
+    from nethgl.graph import build_graph
+    from nethgl.interpretability import gradient_times_attention, network_balance
+    from nethgl.models import HierarchicalBrainGNN
 
     rng = np.random.default_rng(12)
     torch.manual_seed(12)

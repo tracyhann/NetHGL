@@ -7,7 +7,7 @@ from numpy.typing import ArrayLike, NDArray
 from scipy.linalg import toeplitz
 from scipy.stats import iqr, kurtosis, skew
 
-from tms_gnn.config import GraphConfig
+from nethgl.config import GraphConfig
 
 
 def _safe_standardize(values: NDArray[np.float64], axis: int) -> NDArray[np.float64]:

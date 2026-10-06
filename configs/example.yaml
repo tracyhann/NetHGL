@@ -1,5 +1,5 @@
 project:
-  model_name: "[MODELNAME]"
+  model_name: "NetHGL"
   run_name: "<RUN_NAME>"
 
 paths:

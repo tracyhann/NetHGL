@@ -12,8 +12,8 @@ import numpy as np
 import torch
 from torch import nn
 
-from tms_gnn.config import TrainingConfig
-from tms_gnn.training.metrics import select_threshold
+from nethgl.config import TrainingConfig
+from nethgl.training.metrics import select_threshold
 
 
 @dataclass

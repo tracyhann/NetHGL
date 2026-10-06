@@ -19,9 +19,9 @@ except ImportError:
             for key, value in attributes.items():
                 setattr(self, key, value)
 
-from tms_gnn.config import GraphConfig
-from tms_gnn.graph.connectivity import pairwise_pearson_connectivity
-from tms_gnn.graph.features import extract_roi_timeseries_features
+from nethgl.config import GraphConfig
+from nethgl.graph.connectivity import pairwise_pearson_connectivity
+from nethgl.graph.features import extract_roi_timeseries_features
 
 
 def _validated_communities(communities: ArrayLike, n_rois: int) -> np.ndarray:

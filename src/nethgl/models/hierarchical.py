@@ -16,8 +16,8 @@ except ImportError as error:
         "Install the project with: pip install -e '.[gnn]'"
     ) from error
 
-from tms_gnn.config import ModelConfig
-from tms_gnn.graph.construction import complete_directed_edge_index
+from nethgl.config import ModelConfig
+from nethgl.graph.construction import complete_directed_edge_index
 
 
 class ROIEncoder(nn.Module):
