@@ -1,4 +1,4 @@
-<img src="docs/figures/model_pipeline.png" width="100%" />
+<img src="docs/figures/teaser.png" width="100%" />
 
 <div align="center">
   <p>
@@ -14,6 +14,12 @@ NetHGL is a hierarchical graph neural network that classifies resting-state fMRI
 
 > [!IMPORTANT]
 > NetHGL is research code. It classifies the clinical state at the time of each scan and does not predict future treatment response. Attributions describe what the trained model relies on, not biological causality, and the model is not intended for clinical decisions.
+
+# Method
+
+<img src="docs/figures/model_pipeline.png" width="100%" />
+
+**(A) Graph construction.** Each scan is parcellated into 450 ROIs, each ROI's time series is summarized as a 64-dimensional feature vector, ROIs are connected within their functional network, and the scan takes the concurrent MADRS label of its visit. **(B) Network-aware hierarchical graph learning.** GraphSAGE layers pass messages within networks, learned weights pool ROIs into network embeddings, GATv2 layers pass messages among networks, and a network-weighted ensemble produces the remission-versus-depression prediction.
 
 # Installation
 
