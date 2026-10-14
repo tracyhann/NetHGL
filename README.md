@@ -2,6 +2,7 @@
 
 <div align="center">
   <p>
+    <a href="https://nethgl.github.io"><strong>Project page</strong></a> |
     <a href="docs/methods.md"><strong>Methods</strong></a> |
     <a href="docs/data_schema.md"><strong>Data schema</strong></a> |
     <strong>Paper</strong> (coming soon)
